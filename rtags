@@ -1,0 +1,21 @@
+#! /usr/local/opt/rbenv/shims/ruby
+
+require 'bundler'
+
+if File.exists?("Gemfile")
+  ENV["BUNDLE_GEMFILE"] = File.join(ENV["PWD"], "Gemfile")
+  print "Creating ctags "
+  `rm tags` if File.exists?("tags")
+  `ctags -R .`
+
+  Bundler.load.specs.each do |s|
+    `ctags -a tags -R #{s.full_gem_path}`
+    print "."
+  end
+
+  puts "\n", "Ctags ready :)"
+else
+  puts "Sorry, no Gemfile in current dir :("
+end
+
+
