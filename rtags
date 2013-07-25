@@ -2,34 +2,35 @@
 
 require 'bundler'
 
+# Exit if there is no Bundler
 unless defined?(Bundler)
   puts 'No Bundler found. Please run gem install bundler.'
   exit
 end
 
+# Rtags processor
 class Rtags
   attr_reader :full_name, :help
 
   def initialize
     @options = {}
+    ARGV.each_with_index { |v,idx| @options[ARGV[idx*2]] = ARGV[idx*2+1] }
+    @full_name = File.join(options['-f'] || './tags')
     @help =<<-TEXT
       Generates ctags tagfile with included gems from bundle.
 
       Options:
 
         -h - shows this help
-        -f - tagfile name (default 'tags')
-        -p - path to store tagsfile (default .)
+        -f - tagfile name (default './tags')
     TEXT
-    ARGV.each_with_index { |v,idx| @options[ARGV[idx*2]] = ARGV[idx*2+1] }
-    @full_name = File.join(options['-p'] || '.', options['-f'] || 'tags')
   end
 
   def options
     @options
   end
 
-  def has_help?
+  def has_help_key?
     options.has_key?('-h')
   end
 
@@ -61,9 +62,10 @@ class Rtags
   end
 end
 
+# Executing script
 r = Rtags.new
 
-if r.has_help?
+if r.has_help_key?
   puts r.help
   exit
 else
