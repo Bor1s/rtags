@@ -1,13 +1,13 @@
-rtags
+## Rtags
 =====
 
-Ctags generator for Rails projects
+Ctags generator for Ruby projects (Requires Gemfile).
+Currently supports only OS X.
 
-Usage:
+## Usage:
 =====
-1. Install ruby via https://github.com/sstephenson/rbenv/.
-2. Install ctags via **brew**.
-3. Copy this script to your /usr/local/bin (make sure this path present in $PATH).
-4. Restart shell.
-5. Run **rtags** in your Rails app root (script will generate **tags** file).
-6. Now you have ctags that includes bundled gems :)
+1. Install **ctags** via **brew**.
+2. Copy this script to your /usr/local/bin (make sure this path present in $PATH).
+3. Restart shell.
+4. Run **rtags** in your Ruby/Rails/Sinatra etc. app root folder (run with **-h** invokes help).
+5. Now you have ctags file that includes bundled gems :)
