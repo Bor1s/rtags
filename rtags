@@ -2,20 +2,70 @@
 
 require 'bundler'
 
-if File.exists?("Gemfile")
-  ENV["BUNDLE_GEMFILE"] = File.join(ENV["PWD"], "Gemfile")
-  print "Creating ctags "
-  `rm tags` if File.exists?("tags")
-  `ctags -R .`
-
-  Bundler.load.specs.each do |s|
-    `ctags -a tags -R #{s.full_gem_path}`
-    print "."
-  end
-
-  puts "\n", "Ctags ready :)"
-else
-  puts "Sorry, no Gemfile in current dir :("
+unless defined?(Bundler)
+  puts 'No Bundler found. Please run gem install bundler.'
+  exit
 end
 
+class Rtags
+  attr_reader :full_name, :help
 
+  def initialize
+    @options = {}
+    @help =<<-TEXT
+      Generates ctags tagfile with included gems from bundle.
+
+      Options:
+
+        -h - shows this help
+        -f - tagfile name (default 'tags')
+        -p - path to store tagsfile (default .)
+    TEXT
+    ARGV.each_with_index { |v,idx| @options[ARGV[idx*2]] = ARGV[idx*2+1] }
+    @full_name = File.join(options['-p'] || '.', options['-f'] || 'tags')
+  end
+
+  def options
+    @options
+  end
+
+  def has_help?
+    options.has_key?('-h')
+  end
+
+  def generate_ctags
+    if File.exists?("./Gemfile")
+      create_project_ctags(full_name)
+      create_gems_ctags(full_name)
+      puts "\n", 'Completed!'
+    else
+      puts 'Run script in folder with Gemfile.'
+      exit
+    end
+  end
+
+  private
+
+  def create_project_ctags(full_name)
+    puts 'Creating ctags'
+    ENV["BUNDLE_GEMFILE"] = File.join(ENV["PWD"], "Gemfile")
+    `rm #{full_name}` if File.exists?(full_name)
+    `ctags -f #{full_name} -R .`
+  end
+
+  def create_gems_ctags(full_name)
+    Bundler.load.specs.each do |s|
+      `ctags -a -f #{full_name} -R #{s.full_gem_path}`
+      print "."
+    end
+  end
+end
+
+r = Rtags.new
+
+if r.has_help?
+  puts r.help
+  exit
+else
+  r.generate_ctags
+end
